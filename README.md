@@ -2,6 +2,10 @@ robust-linear-solve
 ===================
 An exact linear solver for low dimensional systems.
 
+[![testling badge](https://ci.testling.com/mikolalysenko/robust-linear-solve.png)](https://ci.testling.com/mikolalysenko/robust-linear-solve)
+
+[![build status](https://secure.travis-ci.org/mikolalysenko/robust-linear-solve.png)](http://travis-ci.org/mikolalysenko/robust-linear-solve)
+
 # Example
 
 ```javascript

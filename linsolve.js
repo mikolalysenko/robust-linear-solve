@@ -37,7 +37,7 @@ function generateSolver(n) {
 }
 
 function robustLinearSolve0d() {
-  return [ 0 ]
+  return [ [ 0 ] ]
 }
 
 function robustLinearSolve1d(A, b) {
