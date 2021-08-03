@@ -1,6 +1,6 @@
 {
   "name": "robust-linear-solve",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Exactly solve a low dimensional linear system",
   "main": "linsolve.js",
   "directories": {
