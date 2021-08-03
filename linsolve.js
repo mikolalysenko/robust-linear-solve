@@ -5,35 +5,16 @@ var determinant = require("robust-determinant")
 var NUM_EXPAND = 6
 
 function generateSolver(n) {
-  var funcName = "robustLinearSolve" + n + "d"
-  var code = ["function ", funcName, "(A,b){return ["]
-  for(var i=0; i<n; ++i) {
-    code.push("det([")
-    for(var j=0; j<n; ++j) {
-      if(j > 0) {
-        code.push(",")
-      }
-      code.push("[")
-      for(var k=0; k<n; ++k) {
-        if(k > 0) {
-          code.push(",")
-        }
-        if(k === i) {
-          code.push("+b[", j, "]")
-        } else {
-          code.push("+A[", j, "][", k, "]")
-        }
-      }
-      code.push("]")
-    }
-    code.push("]),")
-  }
-  code.push("det(A)]}return ", funcName)
-  var proc = new Function("det", code.join(""))
+  var fn =
+    n === 2 ? solve2d :
+    n === 3 ? solve3d :
+    n === 4 ? solve4d :
+    n === 5 ? solve5d : solve6d
+
   if(n < 6) {
-    return proc(determinant[n])
+    return fn(determinant[n])
   }
-  return proc(determinant)
+  return fn(determinant)
 }
 
 function robustLinearSolve0d() {
@@ -44,24 +25,61 @@ function robustLinearSolve1d(A, b) {
   return [ [ b[0] ], [ A[0][0] ] ]
 }
 
+function solve2d(det) {
+  return function robustLinearSolve2d(A, b) {
+    return [det([[+b[0], +A[0][1]], [+b[1], +A[1][1]]]), det([[+A[0][0], +b[0]], [+A[1][0], +b[1]]]), det(A)]
+  }
+}
+
+function solve3d(det) {
+  return function robustLinearSolve3d(A, b) {
+    return [det([[+b[0], +A[0][1], +A[0][2]], [+b[1], +A[1][1], +A[1][2]], [+b[2], +A[2][1], +A[2][2]]]), det([[+A[0][0], +b[0], +A[0][2]], [+A[1][0], +b[1], +A[1][2]], [+A[2][0], +b[2], +A[2][2]]]), det([[+A[0][0], +A[0][1], +b[0]], [+A[1][0], +A[1][1], +b[1]], [+A[2][0], +A[2][1], +b[2]]]), det(A)]
+  }
+}
+
+function solve4d(det) {
+  return function robustLinearSolve4d(A, b) {
+    return [det([[+b[0], +A[0][1], +A[0][2], +A[0][3]], [+b[1], +A[1][1], +A[1][2], +A[1][3]], [+b[2], +A[2][1], +A[2][2], +A[2][3]], [+b[3], +A[3][1], +A[3][2], +A[3][3]]]), det([[+A[0][0], +b[0], +A[0][2], +A[0][3]], [+A[1][0], +b[1], +A[1][2], +A[1][3]], [+A[2][0], +b[2], +A[2][2], +A[2][3]], [+A[3][0], +b[3], +A[3][2], +A[3][3]]]), det([[+A[0][0], +A[0][1], +b[0], +A[0][3]], [+A[1][0], +A[1][1], +b[1], +A[1][3]], [+A[2][0], +A[2][1], +b[2], +A[2][3]], [+A[3][0], +A[3][1], +b[3], +A[3][3]]]), det([[+A[0][0], +A[0][1], +A[0][2], +b[0]], [+A[1][0], +A[1][1], +A[1][2], +b[1]], [+A[2][0], +A[2][1], +A[2][2], +b[2]], [+A[3][0], +A[3][1], +A[3][2], +b[3]]]), det(A)]
+  }
+}
+
+function solve5d(det) {
+  return function robustLinearSolve5d(A, b) {
+    return [det([[+b[0], +A[0][1], +A[0][2], +A[0][3], +A[0][4]], [+b[1], +A[1][1], +A[1][2], +A[1][3], +A[1][4]], [+b[2], +A[2][1], +A[2][2], +A[2][3], +A[2][4]], [+b[3], +A[3][1], +A[3][2], +A[3][3], +A[3][4]], [+b[4], +A[4][1], +A[4][2], +A[4][3], +A[4][4]]]), det([[+A[0][0], +b[0], +A[0][2], +A[0][3], +A[0][4]], [+A[1][0], +b[1], +A[1][2], +A[1][3], +A[1][4]], [+A[2][0], +b[2], +A[2][2], +A[2][3], +A[2][4]], [+A[3][0], +b[3], +A[3][2], +A[3][3], +A[3][4]], [+A[4][0], +b[4], +A[4][2], +A[4][3], +A[4][4]]]), det([[+A[0][0], +A[0][1], +b[0], +A[0][3], +A[0][4]], [+A[1][0], +A[1][1], +b[1], +A[1][3], +A[1][4]], [+A[2][0], +A[2][1], +b[2], +A[2][3], +A[2][4]], [+A[3][0], +A[3][1], +b[3], +A[3][3], +A[3][4]], [+A[4][0], +A[4][1], +b[4], +A[4][3], +A[4][4]]]), det([[+A[0][0], +A[0][1], +A[0][2], +b[0], +A[0][4]], [+A[1][0], +A[1][1], +A[1][2], +b[1], +A[1][4]], [+A[2][0], +A[2][1], +A[2][2], +b[2], +A[2][4]], [+A[3][0], +A[3][1], +A[3][2], +b[3], +A[3][4]], [+A[4][0], +A[4][1], +A[4][2], +b[4], +A[4][4]]]), det([[+A[0][0], +A[0][1], +A[0][2], +A[0][3], +b[0]], [+A[1][0], +A[1][1], +A[1][2], +A[1][3], +b[1]], [+A[2][0], +A[2][1], +A[2][2], +A[2][3], +b[2]], [+A[3][0], +A[3][1], +A[3][2], +A[3][3], +b[3]], [+A[4][0], +A[4][1], +A[4][2], +A[4][3], +b[4]]]), det(A)]
+  }
+}
+
+function solve6d(det) {
+  return function robustLinearSolve6d(A, b) {
+    return [det([[+b[0], +A[0][1], +A[0][2], +A[0][3], +A[0][4], +A[0][5]], [+b[1], +A[1][1], +A[1][2], +A[1][3], +A[1][4], +A[1][5]], [+b[2], +A[2][1], +A[2][2], +A[2][3], +A[2][4], +A[2][5]], [+b[3], +A[3][1], +A[3][2], +A[3][3], +A[3][4], +A[3][5]], [+b[4], +A[4][1], +A[4][2], +A[4][3], +A[4][4], +A[4][5]], [+b[5], +A[5][1], +A[5][2], +A[5][3], +A[5][4], +A[5][5]]]), det([[+A[0][0], +b[0], +A[0][2], +A[0][3], +A[0][4], +A[0][5]], [+A[1][0], +b[1], +A[1][2], +A[1][3], +A[1][4], +A[1][5]], [+A[2][0], +b[2], +A[2][2], +A[2][3], +A[2][4], +A[2][5]], [+A[3][0], +b[3], +A[3][2], +A[3][3], +A[3][4], +A[3][5]], [+A[4][0], +b[4], +A[4][2], +A[4][3], +A[4][4], +A[4][5]], [+A[5][0], +b[5], +A[5][2], +A[5][3], +A[5][4], +A[5][5]]]), det([[+A[0][0], +A[0][1], +b[0], +A[0][3], +A[0][4], +A[0][5]], [+A[1][0], +A[1][1], +b[1], +A[1][3], +A[1][4], +A[1][5]], [+A[2][0], +A[2][1], +b[2], +A[2][3], +A[2][4], +A[2][5]], [+A[3][0], +A[3][1], +b[3], +A[3][3], +A[3][4], +A[3][5]], [+A[4][0], +A[4][1], +b[4], +A[4][3], +A[4][4], +A[4][5]], [+A[5][0], +A[5][1], +b[5], +A[5][3], +A[5][4], +A[5][5]]]), det([[+A[0][0], +A[0][1], +A[0][2], +b[0], +A[0][4], +A[0][5]], [+A[1][0], +A[1][1], +A[1][2], +b[1], +A[1][4], +A[1][5]], [+A[2][0], +A[2][1], +A[2][2], +b[2], +A[2][4], +A[2][5]], [+A[3][0], +A[3][1], +A[3][2], +b[3], +A[3][4], +A[3][5]], [+A[4][0], +A[4][1], +A[4][2], +b[4], +A[4][4], +A[4][5]], [+A[5][0], +A[5][1], +A[5][2], +b[5], +A[5][4], +A[5][5]]]), det([[+A[0][0], +A[0][1], +A[0][2], +A[0][3], +b[0], +A[0][5]], [+A[1][0], +A[1][1], +A[1][2], +A[1][3], +b[1], +A[1][5]], [+A[2][0], +A[2][1], +A[2][2], +A[2][3], +b[2], +A[2][5]], [+A[3][0], +A[3][1], +A[3][2], +A[3][3], +b[3], +A[3][5]], [+A[4][0], +A[4][1], +A[4][2], +A[4][3], +b[4], +A[4][5]], [+A[5][0], +A[5][1], +A[5][2], +A[5][3], +b[5], +A[5][5]]]), det([[+A[0][0], +A[0][1], +A[0][2], +A[0][3], +A[0][4], +b[0]], [+A[1][0], +A[1][1], +A[1][2], +A[1][3], +A[1][4], +b[1]], [+A[2][0], +A[2][1], +A[2][2], +A[2][3], +A[2][4], +b[2]], [+A[3][0], +A[3][1], +A[3][2], +A[3][3], +A[3][4], +b[3]], [+A[4][0], +A[4][1], +A[4][2], +A[4][3], +A[4][4], +b[4]], [+A[5][0], +A[5][1], +A[5][2], +A[5][3], +A[5][4], +b[5]]]), det(A)]
+  }
+}
+
 var CACHE = [
   robustLinearSolve0d,
   robustLinearSolve1d
 ]
 
+function proc(s0, s1, s2, s3, s4, s5, CACHE, g) {
+  return function dispatchLinearSolve(A, b) {
+    switch (A.length) {
+      case 0: return s0(A, b);
+      case 1: return s1(A, b);
+      case 2: return s2(A, b);
+      case 3: return s3(A, b);
+      case 4: return s4(A, b);
+      case 5: return s5(A, b);
+    }
+    var s = CACHE[A.length];
+    if (!s) s = CACHE[A.length] = g(A.length);
+    return s(A, b)
+  }
+}
+
 function generateDispatch() {
   while(CACHE.length < NUM_EXPAND) {
     CACHE.push(generateSolver(CACHE.length))
   }
-  var procArgs = []
-  var code = ["function dispatchLinearSolve(A,b){switch(A.length){"]
-  for(var i=0; i<NUM_EXPAND; ++i) {
-    procArgs.push("s" + i)
-    code.push("case ", i, ":return s", i, "(A,b);")
-  }
-  code.push("}var s=CACHE[A.length];if(!s)s=CACHE[A.length]=g(A.length);return s(A,b)}return dispatchLinearSolve")
-  procArgs.push("CACHE", "g", code.join(""))
-  var proc = Function.apply(undefined, procArgs)
   module.exports = proc.apply(undefined, CACHE.concat([CACHE, generateSolver]))
   for(var i=0; i<NUM_EXPAND; ++i) {
     module.exports[i] = CACHE[i]
