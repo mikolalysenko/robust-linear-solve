@@ -60,19 +60,26 @@ var CACHE = [
   robustLinearSolve1d
 ]
 
+function proc(s0, s1, s2, s3, s4, s5, CACHE, g) {
+  return function dispatchLinearSolve(A, b) {
+    switch (A.length) {
+      case 0: return s0(A, b);
+      case 1: return s1(A, b);
+      case 2: return s2(A, b);
+      case 3: return s3(A, b);
+      case 4: return s4(A, b);
+      case 5: return s5(A, b);
+    }
+    var s = CACHE[A.length];
+    if (!s) s = CACHE[A.length] = g(A.length);
+    return s(A, b)
+  }
+}
+
 function generateDispatch() {
   while(CACHE.length < NUM_EXPAND) {
     CACHE.push(generateSolver(CACHE.length))
   }
-  var procArgs = []
-  var code = ["function dispatchLinearSolve(A,b){switch(A.length){"]
-  for(var i=0; i<NUM_EXPAND; ++i) {
-    procArgs.push("s" + i)
-    code.push("case ", i, ":return s", i, "(A,b);")
-  }
-  code.push("}var s=CACHE[A.length];if(!s)s=CACHE[A.length]=g(A.length);return s(A,b)}return dispatchLinearSolve")
-  procArgs.push("CACHE", "g", code.join(""))
-  var proc = Function.apply(undefined, procArgs)
   module.exports = proc.apply(undefined, CACHE.concat([CACHE, generateSolver]))
   for(var i=0; i<NUM_EXPAND; ++i) {
     module.exports[i] = CACHE[i]
